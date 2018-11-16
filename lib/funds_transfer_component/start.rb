@@ -3,7 +3,9 @@ module FundsTransferComponent
     def self.call
       Consumers::Commands.start('fundsTransfer:command')
       Consumers::Events.start('fundsTransfer')
-      Consumers::Account::Events.start('account')
+
+      correlation_condition = "metadata->>'correlationStreamName' LIKE 'fundsTransfer-%'"
+      Consumers::Account::Events.start('account', condition: correlation_condition)
     end
   end
 end
