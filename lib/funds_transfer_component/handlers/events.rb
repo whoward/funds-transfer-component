@@ -8,15 +8,25 @@ module FundsTransferComponent
       include Messages::Events
 
       dependency :withdraw, ::Account::Client::Withdraw
+      dependency :deposit, ::Account::Client::Deposit
+      dependency :store, Store
 
       def configure
         ::Account::Client::Withdraw.configure(self)
+        ::Account::Client::Deposit.configure(self)
+        Store.configure(self)
       end
 
       category :funds_transfer
 
       handle Initiated do |initiated|
-        funds_transfer_id = initiated.funds_transfer_id
+        transfer = store.fetch(initiated.funds_transfer_id)
+
+        if transfer.withdrawn?
+          logger.info(tag: :ignored) { "Command ignored (Command: #{initiated.message_type}, Funds Transfer ID: #{transfer.id}" }
+          return
+        end
+
         account_id = initiated.withdrawal_account_id
         withdrawal_id = initiated.withdrawal_id
         amount = initiated.amount
@@ -30,7 +40,18 @@ module FundsTransferComponent
       end
 
       handle Withdrawn do |withdrawn|
-        # TODO Send Deposit command to the Account component using account client
+        transfer = store.fetch(withdrawn.funds_transfer_id)
+
+        deposit_id = transfer.deposit_id
+        account_id = transfer.deposit_account_id
+        amount = transfer.amount
+
+        deposit.(
+          deposit_id: deposit_id,
+          account_id: account_id,
+          amount: amount,
+          previous_message: withdrawn
+        )
       end
     end
   end

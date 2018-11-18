@@ -9,6 +9,8 @@ context "Projection" do
     assert(funds_transfer.deposit_account_id.nil?)
     assert(funds_transfer.amount.nil?)
     assert(funds_transfer.initiated_time.nil?)
+    assert(funds_transfer.withdrawal_id.nil?)
+    assert(funds_transfer.deposit_id.nil?)
 
     withdrawn = Controls::Events::Withdrawn.example
 

@@ -6,6 +6,8 @@ transfer = Messages::Commands::Transfer.new
 transfer.funds_transfer_id = funds_transfer_id
 transfer.withdrawal_account_id = Identifier::UUID::Random.get
 transfer.deposit_account_id = Identifier::UUID::Random.get
+transfer.withdrawal_id = Identifier::UUID::Random.get
+transfer.deposit_id = Identifier::UUID::Random.get
 transfer.amount = 11
 transfer.time = '2000-01-01T11:11:11.000Z'
 

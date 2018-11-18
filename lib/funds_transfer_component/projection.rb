@@ -10,6 +10,8 @@ module FundsTransferComponent
         { :funds_transfer_id => :id },
         :withdrawal_account_id,
         :deposit_account_id,
+        :withdrawal_id,
+        :deposit_id,
         :amount
       ])
 
