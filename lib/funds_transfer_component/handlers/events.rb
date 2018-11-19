@@ -42,6 +42,11 @@ module FundsTransferComponent
       handle Withdrawn do |withdrawn|
         transfer = store.fetch(withdrawn.funds_transfer_id)
 
+        if transfer.deposited?
+          logger.info(tag: :ignored) { "Command ignored (Command: #{withdrawn.message_type}, Funds Transfer ID: #{transfer.id}" }
+          return
+        end
+
         deposit_id = transfer.deposit_id
         account_id = transfer.deposit_account_id
         amount = transfer.amount

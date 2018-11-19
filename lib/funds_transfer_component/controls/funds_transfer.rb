@@ -52,6 +52,12 @@ module FundsTransferComponent
           funds_transfer
         end
       end
+
+      module Deposited
+        def self.example
+          FundsTransfer.example
+        end
+      end
     end
   end
 end
