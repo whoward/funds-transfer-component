@@ -5,6 +5,8 @@ require 'funds_transfer_component/messages/commands/transfer'
 
 require 'funds_transfer_component/messages/events/initiated'
 require 'funds_transfer_component/messages/events/withdrawn'
+require 'funds_transfer_component/messages/events/deposited'
+require 'funds_transfer_component/messages/events/transferred'
 
 require 'funds_transfer_component/funds_transfer'
 require 'funds_transfer_component/projection'
