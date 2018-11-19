@@ -19,6 +19,10 @@ module FundsTransferComponent
 
       category :funds_transfer
 
+      # these handlers are safe for concurrent execution because all what will
+      # happen is that we will reissue the same command.  We can't use EVE here
+      # anyways because we are writing to a different stream.
+
       handle Initiated do |initiated|
         transfer = store.fetch(initiated.funds_transfer_id)
 
