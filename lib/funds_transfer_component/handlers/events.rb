@@ -10,11 +10,15 @@ module FundsTransferComponent
       dependency :withdraw, ::Account::Client::Withdraw
       dependency :deposit, ::Account::Client::Deposit
       dependency :store, Store
+      dependency :write, Messaging::Postgres::Write
+      dependency :clock, Clock::UTC
 
       def configure
         ::Account::Client::Withdraw.configure(self)
         ::Account::Client::Deposit.configure(self)
         Store.configure(self)
+        Messaging::Postgres::Write.configure(self)
+        Clock::UTC.configure(self)
       end
 
       category :funds_transfer
@@ -61,6 +65,30 @@ module FundsTransferComponent
           amount: amount,
           previous_message: withdrawn
         )
+      end
+
+      handle Deposited do |deposited|
+        transfer, version = store.fetch(deposited.funds_transfer_id, include: :version)
+
+        if transfer.transferred?
+          logger.info(tag: :ignored) { "Command ignored (Command: #{deposited.message_type}, Funds Transfer ID: #{transfer.id}" }
+          return
+        end
+
+        transferred = Transferred.follow(deposited, copy: [:time])
+
+        SetAttributes.(transferred, transfer, copy: [
+          { :id => :funds_transfer_id },
+          :withdrawal_account_id,
+          :deposit_account_id,
+          :withdrawal_id,
+          :deposit_id,
+          :amount
+        ])
+
+        stream_name = stream_name(deposited.funds_transfer_id)
+
+        write.(transferred, stream_name, expected_version: version)
       end
     end
   end
